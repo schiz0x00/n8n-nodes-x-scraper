@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-x-twitter-scraper",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Consume Twitter/X without their API",
   "keywords": [
     "n8n-community-node-package"

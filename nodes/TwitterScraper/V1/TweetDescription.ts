@@ -13,6 +13,12 @@ export const tweetOperations: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Bookmark',
+				value: 'bookmark',
+				description: 'Bookmark a tweet',
+				action: 'Bookmark tweet',
+			},
+			{
 				name: 'Create',
 				value: 'create',
 				description: 'Create, quote, or reply to a tweet',
@@ -23,6 +29,36 @@ export const tweetOperations: INodeProperties[] = [
 				value: 'delete',
 				description: 'Delete a tweet',
 				action: 'Delete tweet',
+			},
+			{
+				name: 'Get',
+				value: 'details',
+				description: 'Get a tweet by ID',
+				action: 'Get tweet',
+			},
+			{
+				name: 'Get Likers',
+				value: 'likers',
+				description: 'Get users who liked a tweet',
+				action: 'Get tweet likers',
+			},
+			{
+				name: 'Get Replies',
+				value: 'replies',
+				description: 'Get replies to a tweet',
+				action: 'Get tweet replies',
+			},
+			{
+				name: 'Get Retweeters',
+				value: 'retweeters',
+				description: 'Get users who retweeted a tweet',
+				action: 'Get tweet retweeters',
+			},
+			{
+				name: 'History',
+				value: 'history',
+				description: 'Get edit history of a tweet',
+				action: 'Get tweet edit history',
 			},
 			{
 				name: 'Like',
@@ -41,6 +77,12 @@ export const tweetOperations: INodeProperties[] = [
 				value: 'search',
 				description: 'Search for tweets',
 				action: 'Search tweets',
+			},
+			{
+				name: 'Unbookmark',
+				value: 'unbookmark',
+				description: 'Unbookmark a tweet',
+				action: 'Unbookmark tweet',
 			},
 			{
 				name: 'Unlike',
@@ -109,6 +151,13 @@ export const tweetFields: INodeProperties[] = [
 					'ID of the media to attach to the tweet (obtained from the Upload Media operation)',
 			},
 			{
+				displayName: 'Quote Tweet ID',
+				name: 'quoteId',
+				type: 'string',
+				default: '',
+				description: 'ID of the tweet to quote',
+			},
+			{
 				displayName: 'Reply to Tweet',
 				name: 'inReplyToStatusId',
 				type: 'resourceLocator',
@@ -152,6 +201,109 @@ export const tweetFields: INodeProperties[] = [
 			},
 		},
 		description: 'Name of the binary property containing the media to upload',
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                   tweet:details / replies / likers / retweeters            */
+	/*                       bookmark / unbookmark / history                     */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Tweet',
+		name: 'tweetId',
+		type: 'resourceLocator',
+		default: { mode: 'id', value: '' },
+		required: true,
+		displayOptions: {
+			show: {
+				operation: ['details', 'replies', 'likers', 'retweeters', 'bookmark', 'unbookmark', 'history'],
+				resource: ['tweet'],
+			},
+		},
+		modes: [
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				validation: [],
+				placeholder: 'e.g. 1187836157394112513',
+				url: '',
+			},
+			{
+				displayName: 'By URL',
+				name: 'url',
+				type: 'string',
+				validation: [],
+				placeholder: 'e.g. https://twitter.com/n8n_io/status/1187836157394112513',
+				url: '',
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                                tweet:replies                                */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Options',
+		name: 'additionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: {
+				operation: ['replies'],
+				resource: ['tweet'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Sort By',
+				name: 'sortBy',
+				type: 'options',
+				options: [
+					{
+						name: 'Latest',
+						value: 'LATEST',
+					},
+					{
+						name: 'Likes',
+						value: 'LIKES',
+					},
+					{
+						name: 'Relevance',
+						value: 'RELEVANCE',
+					},
+				],
+				default: 'LATEST',
+				description: 'How to sort the replies',
+			},
+			{
+				displayName: 'Cursor',
+				name: 'cursor',
+				type: 'string',
+				default: '',
+				description: 'Cursor for pagination',
+			},
+		],
+	},
+
+	/* -------------------------------------------------------------------------- */
+	/*                          tweet:likers / retweeters                         */
+	/* -------------------------------------------------------------------------- */
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		description: 'Max number of results to return',
+		type: 'number',
+		default: 50,
+		typeOptions: {
+			minValue: 1,
+		},
+		displayOptions: {
+			show: {
+				resource: ['tweet'],
+				operation: ['likers', 'retweeters'],
+			},
+		},
 	},
 
 	/* -------------------------------------------------------------------------- */
@@ -395,7 +547,6 @@ export const tweetFields: INodeProperties[] = [
 				default: '',
 				description: 'Tweets after this date will not be returned',
 			},
-
 			{
 				displayName: 'From Users',
 				name: 'fromUsers',
@@ -404,11 +555,108 @@ export const tweetFields: INodeProperties[] = [
 				description: 'A comma-separated list of usernames, without the @ symbol',
 			},
 			{
+				displayName: 'To Users',
+				name: 'toUsers',
+				type: 'string',
+				default: '',
+				description: 'A comma-separated list of usernames the tweet is addressed to, without the @ symbol',
+			},
+			{
+				displayName: 'Hashtags',
+				name: 'hashtags',
+				type: 'string',
+				default: '',
+				description: 'A comma-separated list of hashtags to search, without the # symbol',
+			},
+			{
+				displayName: 'Mentions',
+				name: 'mentions',
+				type: 'string',
+				default: '',
+				description: 'A comma-separated list of usernames mentioned, without the @ symbol',
+			},
+			{
+				displayName: 'Exclude Words',
+				name: 'excludeWords',
+				type: 'string',
+				default: '',
+				description: 'A comma-separated list of words to exclude from search',
+			},
+			{
+				displayName: 'Include Words',
+				name: 'includeWords',
+				type: 'string',
+				default: '',
+				description: 'A comma-separated list of words that must be present',
+			},
+			{
+				displayName: 'Optional Words',
+				name: 'optionalWords',
+				type: 'string',
+				default: '',
+				description: 'A comma-separated list of optional words',
+			},
+			{
+				displayName: 'Language',
+				name: 'language',
+				type: 'string',
+				default: '',
+				placeholder: 'e.g. en',
+				description: 'Language of the tweets to search (ISO language code)',
+			},
+			{
+				displayName: 'Min Likes',
+				name: 'minLikes',
+				type: 'number',
+				default: 0,
+				description: 'Minimum number of likes',
+			},
+			{
+				displayName: 'Min Retweets',
+				name: 'minRetweets',
+				type: 'number',
+				default: 0,
+				description: 'Minimum number of retweets',
+			},
+			{
+				displayName: 'Min Replies',
+				name: 'minReplies',
+				type: 'number',
+				default: 0,
+				description: 'Minimum number of replies',
+			},
+			{
 				displayName: 'Search Top Tweets',
 				name: 'top',
 				type: 'boolean',
 				default: true,
 				description: 'Whether to search for top (most popular) tweets instead of recent tweets',
+			},
+			{
+				displayName: 'Only Links',
+				name: 'onlyLinks',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to search only posts that contain links (media, quotes, retweets, etc.)',
+			},
+			{
+				displayName: 'Only Text',
+				name: 'onlyText',
+				type: 'boolean',
+				default: false,
+			},
+			{
+				displayName: 'Only Original',
+				name: 'onlyOriginal',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to search only original posts (no retweets/replies)',
+			},
+			{
+				displayName: 'Only Replies',
+				name: 'onlyReplies',
+				type: 'boolean',
+				default: false,
 			},
 		],
 	},

@@ -16,12 +16,6 @@ import { Rettiwt, TweetFilter } from 'rettiwt-api';
 import type { INewTweetMedia } from 'rettiwt-api';
 import { returnId } from './GenericFunctions';
 
-/**
- * Adapted code from:
- * @see https://github.com/n8n-io/n8n/blob/master/packages/nodes-base/nodes/Twitter/V2/TwitterV2.node.ts
- * Using the rettiwt-api package to interact with Twitter
- * @see https://github.com/Rishikant181/Rettiwt-API/
- */
 export class TwitterScraperV1 implements INodeType {
 	description: INodeTypeDescription;
 
@@ -56,15 +50,13 @@ export class TwitterScraperV1 implements INodeType {
 						{
 							name: 'User',
 							value: 'user',
-							description: 'Search users',
+							description: 'Interact with users',
 						},
 					],
 					default: 'tweet',
 				},
-				// TWEET
 				...tweetOperations,
 				...tweetFields,
-				// USER
 				...userOperations,
 				...userFields,
 			],
@@ -81,7 +73,6 @@ export class TwitterScraperV1 implements INodeType {
 		const resource = this.getNodeParameter('resource', 0);
 		const operation = this.getNodeParameter('operation', 0);
 
-		// Custom credentials
 		const credentials = await this.getCredentials('twitterScraperApi');
 
 		const rettiwt = new Rettiwt({ apiKey: credentials.apiKey as string });
@@ -98,43 +89,37 @@ export class TwitterScraperV1 implements INodeType {
 						) as INodeParameterResourceLocator;
 
 						const tweetId = returnId(tweetRLC);
-
 						responseData = await rettiwt.tweet.unpost(tweetId);
 					}
 
 					if (operation === 'create') {
 						const text = this.getNodeParameter('text', i, '', {});
 
-						const { mediaId, inReplyToStatusId } = this.getNodeParameter(
+						const { mediaId, inReplyToStatusId, quoteId } = this.getNodeParameter(
 							'additionalFields',
 							i,
 							{},
 						) as {
 							mediaId: string;
 							inReplyToStatusId: INodeParameterResourceLocator;
+							quoteId: string;
 						};
 
-						let inReplyToStatusIdValue;
-
+						let inReplyToStatusIdValue: string | undefined;
 						if (inReplyToStatusId) {
 							inReplyToStatusIdValue = returnId(inReplyToStatusId);
 						}
 
 						let attachmentsValue: INewTweetMedia[] | undefined;
-
 						if (mediaId) {
-							attachmentsValue = [
-								{
-									id: mediaId,
-									// tags: [],
-								},
-							];
+							attachmentsValue = [{ id: mediaId }];
 						}
 
 						const tweetId = await rettiwt.tweet.post({
 							text: text as string,
 							media: attachmentsValue,
 							replyTo: inReplyToStatusIdValue,
+							quote: quoteId || undefined,
 						});
 
 						responseData = { tweetId };
@@ -148,10 +133,7 @@ export class TwitterScraperV1 implements INodeType {
 							{},
 						) as string;
 
-						// Get binary data from the specified property
 						const binaryBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
-
-						// Upload the media and get the media ID
 						const mediaId = await rettiwt.tweet.upload(binaryBuffer as unknown as ArrayBuffer);
 
 						responseData = { mediaId };
@@ -166,7 +148,6 @@ export class TwitterScraperV1 implements INodeType {
 						) as INodeParameterResourceLocator;
 
 						const tweetId = returnId(tweetRLC);
-
 						responseData = await rettiwt.tweet.retweet(tweetId);
 					}
 
@@ -179,7 +160,6 @@ export class TwitterScraperV1 implements INodeType {
 						) as INodeParameterResourceLocator;
 
 						const tweetId = returnId(tweetRLC);
-
 						responseData = await rettiwt.tweet.unretweet(tweetId);
 					}
 
@@ -192,7 +172,6 @@ export class TwitterScraperV1 implements INodeType {
 						) as INodeParameterResourceLocator;
 
 						const tweetId = returnId(tweetRLC);
-
 						responseData = await rettiwt.tweet.like(tweetId);
 					}
 
@@ -205,24 +184,149 @@ export class TwitterScraperV1 implements INodeType {
 						) as INodeParameterResourceLocator;
 
 						const tweetId = returnId(tweetRLC);
-
 						responseData = await rettiwt.tweet.unlike(tweetId);
 					}
 
-					if (operation === 'search') {
-						const searchText = this.getNodeParameter('searchText', i, '', {});
+					if (operation === 'details') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
 
-						const limit = this.getNodeParameter('limit', i);
+						const tweetId = returnId(tweetRLC);
+						responseData = await rettiwt.tweet.details(tweetId);
+					}
 
-						const { startTime, endTime, fromUsers, searchTop } = this.getNodeParameter(
+					if (operation === 'replies') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const tweetId = returnId(tweetRLC);
+
+						const { sortBy, cursor } = this.getNodeParameter(
 							'additionalFields',
 							i,
 							{},
 						) as {
+							sortBy: string;
+							cursor: string;
+						};
+
+						responseData = await rettiwt.tweet.replies(tweetId, cursor || undefined, sortBy as any);
+					}
+
+					if (operation === 'likers') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const tweetId = returnId(tweetRLC);
+						const limit = this.getNodeParameter('limit', i) as number;
+
+						responseData = await rettiwt.tweet.likers(tweetId, limit);
+					}
+
+					if (operation === 'retweeters') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const tweetId = returnId(tweetRLC);
+						const limit = this.getNodeParameter('limit', i) as number;
+
+						responseData = await rettiwt.tweet.retweeters(tweetId, limit);
+					}
+
+					if (operation === 'history') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const tweetId = returnId(tweetRLC);
+						responseData = await rettiwt.tweet.history(tweetId);
+					}
+
+					if (operation === 'bookmark') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const tweetId = returnId(tweetRLC);
+						responseData = await rettiwt.tweet.bookmark(tweetId);
+					}
+
+					if (operation === 'unbookmark') {
+						const tweetRLC = this.getNodeParameter(
+							'tweetId',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const tweetId = returnId(tweetRLC);
+						responseData = await rettiwt.tweet.unbookmark(tweetId);
+					}
+
+					if (operation === 'search') {
+						const searchText = this.getNodeParameter('searchText', i, '', {});
+						const limit = this.getNodeParameter('limit', i);
+
+						const {
+							startTime,
+							endTime,
+							fromUsers,
+							toUsers,
+							hashtags,
+							mentions,
+							excludeWords,
+							includeWords,
+							optionalWords,
+							language,
+							minLikes,
+							minRetweets,
+							minReplies,
+							searchTop,
+							onlyLinks,
+							onlyText,
+							onlyOriginal,
+							onlyReplies,
+						} = this.getNodeParameter('additionalFields', i, {}) as {
 							startTime: string;
 							endTime: string;
 							fromUsers: string;
+							toUsers: string;
+							hashtags: string;
+							mentions: string;
+							excludeWords: string;
+							includeWords: string;
+							optionalWords: string;
+							language: string;
+							minLikes: number;
+							minRetweets: number;
+							minReplies: number;
 							searchTop: boolean;
+							onlyLinks: boolean;
+							onlyText: boolean;
+							onlyOriginal: boolean;
+							onlyReplies: boolean;
 						};
 
 						const tweetFilter: TweetFilter = {};
@@ -240,11 +344,67 @@ export class TwitterScraperV1 implements INodeType {
 						}
 
 						if (fromUsers) {
-							tweetFilter.fromUsers = fromUsers.split(',');
+							tweetFilter.fromUsers = fromUsers.split(',').map(u => u.trim()).filter(Boolean);
+						}
+
+						if (toUsers) {
+							tweetFilter.toUsers = toUsers.split(',').map(u => u.trim()).filter(Boolean);
+						}
+
+						if (hashtags) {
+							tweetFilter.hashtags = hashtags.split(',').map(h => h.trim()).filter(Boolean);
+						}
+
+						if (mentions) {
+							tweetFilter.mentions = mentions.split(',').map(m => m.trim()).filter(Boolean);
+						}
+
+						if (excludeWords) {
+							tweetFilter.excludeWords = excludeWords.split(',').map(w => w.trim()).filter(Boolean);
+						}
+
+						if (includeWords) {
+							tweetFilter.includeWords = includeWords.split(',').map(w => w.trim()).filter(Boolean);
+						}
+
+						if (optionalWords) {
+							tweetFilter.optionalWords = optionalWords.split(',').map(w => w.trim()).filter(Boolean);
+						}
+
+						if (language) {
+							tweetFilter.language = language;
+						}
+
+						if (minLikes) {
+							tweetFilter.minLikes = minLikes;
+						}
+
+						if (minRetweets) {
+							tweetFilter.minRetweets = minRetweets;
+						}
+
+						if (minReplies) {
+							tweetFilter.minReplies = minReplies;
 						}
 
 						if (searchTop) {
 							tweetFilter.top = searchTop;
+						}
+
+						if (onlyLinks) {
+							tweetFilter.onlyLinks = onlyLinks;
+						}
+
+						if (onlyText) {
+							tweetFilter.onlyText = onlyText;
+						}
+
+						if (onlyOriginal) {
+							tweetFilter.onlyOriginal = onlyOriginal;
+						}
+
+						if (onlyReplies) {
+							tweetFilter.onlyReplies = onlyReplies;
 						}
 
 						responseData = await rettiwt.tweet.search(tweetFilter, limit);
@@ -261,6 +421,17 @@ export class TwitterScraperV1 implements INodeType {
 						) as INodeParameterResourceLocator;
 
 						responseData = await rettiwt.user.details(username.value as string);
+					}
+
+					if (operation === 'about') {
+						const username = this.getNodeParameter(
+							'user',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						responseData = await rettiwt.user.about(username.value as string);
 					}
 
 					if (operation === 'getTimeline') {
@@ -281,6 +452,126 @@ export class TwitterScraperV1 implements INodeType {
 
 						responseData = await rettiwt.user.timeline(userData.id, limit);
 					}
+
+					if (operation === 'followers') {
+						const username = this.getNodeParameter(
+							'user',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const limit = this.getNodeParameter('limit', i);
+
+						const userData = await rettiwt.user.details(username.value as string);
+
+						if (!userData) {
+							throw new NodeOperationError(this.getNode(), 'User not found');
+						}
+
+						responseData = await rettiwt.user.followers(userData.id, limit);
+					}
+
+					if (operation === 'following') {
+						const username = this.getNodeParameter(
+							'user',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const limit = this.getNodeParameter('limit', i);
+
+						const userData = await rettiwt.user.details(username.value as string);
+
+						if (!userData) {
+							throw new NodeOperationError(this.getNode(), 'User not found');
+						}
+
+						responseData = await rettiwt.user.following(userData.id, limit);
+					}
+
+					if (operation === 'media') {
+						const username = this.getNodeParameter(
+							'user',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const limit = this.getNodeParameter('limit', i);
+
+						const userData = await rettiwt.user.details(username.value as string);
+
+						if (!userData) {
+							throw new NodeOperationError(this.getNode(), 'User not found');
+						}
+
+						responseData = await rettiwt.user.media(userData.id, limit);
+					}
+
+					if (operation === 'highlights') {
+						const username = this.getNodeParameter(
+							'user',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const limit = this.getNodeParameter('limit', i);
+
+						const userData = await rettiwt.user.details(username.value as string);
+
+						if (!userData) {
+							throw new NodeOperationError(this.getNode(), 'User not found');
+						}
+
+						responseData = await rettiwt.user.highlights(userData.id, limit);
+					}
+
+					if (operation === 'replies') {
+						const username = this.getNodeParameter(
+							'user',
+							i,
+							'',
+							{},
+						) as INodeParameterResourceLocator;
+
+						const limit = this.getNodeParameter('limit', i);
+
+						const userData = await rettiwt.user.details(username.value as string);
+
+						if (!userData) {
+							throw new NodeOperationError(this.getNode(), 'User not found');
+						}
+
+						responseData = await rettiwt.user.replies(userData.id, limit);
+					}
+
+					if (operation === 'likes') {
+						const limit = this.getNodeParameter('limit', i);
+
+						responseData = await rettiwt.user.likes(limit);
+					}
+
+					if (operation === 'search') {
+						const searchText = this.getNodeParameter('searchText', i, '', {}) as string;
+						const limit = this.getNodeParameter('limit', i);
+
+						responseData = await rettiwt.user.search(searchText, limit);
+					}
+
+					if (operation === 'follow') {
+						const userId = this.getNodeParameter('userId', i, '', {}) as string;
+
+						responseData = await rettiwt.user.follow(userId);
+					}
+
+					if (operation === 'unfollow') {
+						const userId = this.getNodeParameter('userId', i, '', {}) as string;
+
+						responseData = await rettiwt.user.unfollow(userId);
+					}
 				}
 
 				const executionData = this.helpers.constructExecutionMetaData(
@@ -290,7 +581,6 @@ export class TwitterScraperV1 implements INodeType {
 
 				returnData.push(...executionData);
 
-				// Error handling
 			} catch (error) {
 				if (this.continueOnFail()) {
 					const executionErrorData = {
