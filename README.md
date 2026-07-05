@@ -1,6 +1,8 @@
-# n8n-nodes-twitter-scraper
+# n8n-nodes-x-scraper
 
 This is an n8n community node. It lets you use Twitter (X) in your n8n workflows without requiring the official API.
+
+> Forked from [AlejandroAkbal/n8n-nodes-twitter-scraper](https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper) — all credit to the original author.
 
 Twitter is a social media platform where users post and interact with messages known as "tweets". This node allows you to interact with Twitter through web scraping techniques, avoiding Twitter API restrictions and costs.
 
@@ -19,7 +21,7 @@ Twitter is a social media platform where users post and interact with messages k
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
 ```bash
-pnpm i n8n-nodes-twitter-scraper
+pnpm i n8n-nodes-x-scraper
 ```
 
 Alternatively, you can install it directly from the n8n UI:
@@ -60,11 +62,12 @@ To obtain the API key check out the [Rettiwt-API documentation](https://github.c
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 - [Rettiwt-API documentation](https://github.com/Rishikant181/Rettiwt-API/)
-- [Project repository](https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper)
+- [Upstream repository](https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper) (original)
+- [This fork](https://github.com/schiz0x00/n8n-nodes-x-scraper)
 
 ## Version history
 
-Check out the [commit history](https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper/commits/master) for version details.
+Check the [commit history](https://github.com/schiz0x00/n8n-nodes-x-scraper/commits/master) for version details.
 
 ## Development
 
@@ -85,7 +88,7 @@ npm install -g n8n
 1. Clone the repository
 
 ```bash
-git clone https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper.git
+git clone https://github.com/schiz0x00/n8n-nodes-x-scraper.git
 cd n8n-nodes-twitter-scraper
 ```
 

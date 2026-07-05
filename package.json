@@ -1,22 +1,28 @@
 {
-  "name": "n8n-nodes-twitter-scraper",
+  "name": "n8n-nodes-x-scraper",
   "version": "0.3.0",
-  "description": "Consume Twitter without their API",
+  "description": "Consume Twitter/X without their API",
   "keywords": [
     "n8n-community-node-package"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper",
+  "homepage": "https://github.com/schiz0x00/n8n-nodes-x-scraper",
   "author": {
-    "name": "Alejandro Akbal",
-    "email": "alejandro@localhost"
+    "name": "schiz0x00",
+    "url": "https://github.com/schiz0x00"
   },
+  "contributors": [
+    {
+      "name": "Alejandro Akbal",
+      "url": "https://github.com/AlejandroAkbal"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AlejandroAkbal/n8n-nodes-twitter-scraper.git"
+    "url": "https://github.com/schiz0x00/n8n-nodes-x-scraper.git"
   },
   "engines": {
-    "node": ">=18.10",
+    "node": ">=20.15",
     "pnpm": ">=9.1"
   },
   "packageManager": "pnpm@9.1.4",
@@ -43,13 +49,14 @@
     ]
   },
   "dependencies": {
-    "rettiwt-api": "^4.2.0"
+    "rettiwt-api": "^7.1.2"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.56.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "gulp": "^4.0.2",
+    "n8n-workflow": "^2.16.0",
     "prettier": "^3.3.2",
     "typescript": "^5.5.3"
   },
