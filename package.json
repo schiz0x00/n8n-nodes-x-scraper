@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-x-scraper",
+  "name": "n8n-nodes-x-twitter-scraper",
   "version": "0.3.0",
   "description": "Consume Twitter/X without their API",
   "keywords": [

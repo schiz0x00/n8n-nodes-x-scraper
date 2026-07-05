@@ -1,4 +1,4 @@
-# n8n-nodes-x-scraper
+# n8n-nodes-x-twitter-scraper
 
 This is an n8n community node. It lets you use Twitter (X) in your n8n workflows without requiring the official API.
 
@@ -21,7 +21,7 @@ Twitter is a social media platform where users post and interact with messages k
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
 ```bash
-pnpm i n8n-nodes-x-scraper
+pnpm i n8n-nodes-x-twitter-scraper
 ```
 
 Alternatively, you can install it directly from the n8n UI:

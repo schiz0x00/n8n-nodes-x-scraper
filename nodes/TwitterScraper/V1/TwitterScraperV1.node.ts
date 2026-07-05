@@ -8,11 +8,12 @@ import type {
 	INodeTypeDescription,
 	JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { tweetFields, tweetOperations } from './TweetDescription';
 import { userFields, userOperations } from './UserDescription';
 
-import { Rettiwt, TweetFilter, TweetMediaArgs } from 'rettiwt-api';
+import { Rettiwt, TweetFilter } from 'rettiwt-api';
+import type { INewTweetMedia } from 'rettiwt-api';
 import { returnId } from './GenericFunctions';
 
 /**
@@ -32,8 +33,8 @@ export class TwitterScraperV1 implements INodeType {
 			defaults: {
 				name: 'Twitter Scraper',
 			},
-			inputs: ['main'],
-			outputs: ['main'],
+			inputs: [NodeConnectionTypes.Main],
+			outputs: [NodeConnectionTypes.Main],
 			credentials: [
 				{
 					name: 'twitterScraperApi',
@@ -119,7 +120,7 @@ export class TwitterScraperV1 implements INodeType {
 							inReplyToStatusIdValue = returnId(inReplyToStatusId);
 						}
 
-						let attachmentsValue: TweetMediaArgs[] | undefined;
+						let attachmentsValue: INewTweetMedia[] | undefined;
 
 						if (mediaId) {
 							attachmentsValue = [
